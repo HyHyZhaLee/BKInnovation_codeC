@@ -18,7 +18,7 @@ void setup() {
   wifi.setupWifi(); // Setup wifi
   myMQTT.connectToMQTT(); // Connect to MQTT server
   myMQTT.subscribe("/innovation/watermonitoring/"); // Subscribe to the feed
-
+  myMQTT.subscribe("/innovation/airmonitoring/");
 }
 
 void loop() {
@@ -28,6 +28,13 @@ void loop() {
   if (input == 'j') {
     data.setValueWATER_STATION(112.3, 113.4, 114.3, 113.2);
     myMQTT.publish("/innovation/watermonitoring/", data.getData().c_str()); // Publish to feed
+    Serial.println("Data to pub:");
+    data.print();
+    Serial.println();
+  }
+  if (input == 'k') {
+    data.setValueAIR_STATION(30.1, 30.1, 30.1, 30.1);
+    myMQTT.publish("/innovation/airmonitoring/", data.getData().c_str()); // Publish to feed
     Serial.println("Data to pub:");
     data.print();
     Serial.println();
