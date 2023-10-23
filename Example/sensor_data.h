@@ -15,7 +15,9 @@ class SENSOR_DATA{
     DynamicJsonDocument doc;
   public:
     SENSOR_DATA();
-
+    ~SENSOR_DATA(){
+      doc.clear();
+    }
     void setStationId(const char* id);
     void setStationName(const char* name);
     void setStationGPS_longitude(float value);
