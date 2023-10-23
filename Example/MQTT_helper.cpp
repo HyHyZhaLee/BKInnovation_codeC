@@ -31,7 +31,7 @@ bool MyMQTT::publish(String feedName, String message) {
     Serial.print("Publishing to topic: ");
     Serial.println(feedName);
     Serial.print("Status: ");
-    if(client.publish(topic.c_str(), message.c_str())){
+    if(client.publish(topic.c_str(), message.c_str(),1)){
       Serial.println("Success!");
       return 1;
     }

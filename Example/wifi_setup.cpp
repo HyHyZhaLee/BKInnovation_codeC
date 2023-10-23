@@ -27,6 +27,7 @@ void Wifi_esp32::saveWifiCredentials(String ssid, String password) {
   preferences.putString("ssid", ssid); 
   preferences.putString("password", password);
   preferences.end();
+
 }
 
 bool Wifi_esp32::check_savedWifi(){
