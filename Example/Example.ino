@@ -5,10 +5,9 @@
 
 
 // Class Wifi_esp32
-Wifi_esp32 wifi("abcd","12345678");
+Wifi_esp32 wifi;
 // Class MyMQTT
 MyMQTT myMQTT("mqttserver.tk", "innovation", "Innovation_RgPQAZoA5N");
-// MyMQTT myMQTT("io.adafruit.com", "AI_ProjectHGL", "aio_yJZx381mTVk7Qfnbsd17MxJuv8zz");
 // Class data json already created
 SENSOR_DATA data;
 
@@ -18,8 +17,8 @@ void setup() {
   Serial2.begin(9600, SERIAL_8N1, 22, 19);
   wifi.setupWifi(); // Setup wifi
   myMQTT.connectToMQTT(); // Connect to MQTT server
-  // myMQTT.subscribe("/innovation/watermonitoring/"); // Subscribe to the feed
-  // myMQTT.subscribe("AI_ProjectHGL/feeds/test"); // Subscribe to the feed
+  myMQTT.subscribe("/innovation/watermonitoring/"); // Subscribe to the feed
+
 }
 
 void loop() {

@@ -16,6 +16,12 @@ void SENSOR_DATA::setStationGPS_latitude(float value){
       doc["gps_latitude"] = value;
 }
 
+String floatToString(float value) {
+  char buffer[20];  // Đủ lớn để chứa chuỗi
+  sprintf(buffer, "%.2f", value);
+  return String(buffer);
+}
+
 void SENSOR_DATA::setValueWATER_STATION(float EC,float PH, float ORP, float TEMP){
     doc["station_id"] = "water_0001";
     doc["station_name"] = "WATER 0001";
@@ -24,32 +30,33 @@ void SENSOR_DATA::setValueWATER_STATION(float EC,float PH, float ORP, float TEMP
 
     JsonArray sensors = doc["sensors"];
     sensors.clear();
+
     // Add EC sensor
     JsonObject ec_sensor = sensors.createNestedObject();
     ec_sensor["sensor_id"] = "ec_0001";
     ec_sensor["sensor_name"] = "EC 0001";
-    ec_sensor["sensor_value"] = EC;
+    ec_sensor["sensor_value"] = floatToString(EC);
     ec_sensor["sensor_unit"] = "ms/cm";
 
     // Add pH sensor
     JsonObject ph_sensor = sensors.createNestedObject();
     ph_sensor["sensor_id"] = "ph_0001";
     ph_sensor["sensor_name"] = "PH 0001";
-    ph_sensor["sensor_value"] = PH;
+    ph_sensor["sensor_value"] = floatToString(PH);
     ph_sensor["sensor_unit"] = "pH";
 
     // Add ORP sensor
     JsonObject orp_sensor = sensors.createNestedObject();
     orp_sensor["sensor_id"] = "ORP_0001";
     orp_sensor["sensor_name"] = "ORP 0001";
-    orp_sensor["sensor_value"] = ORP;
+    orp_sensor["sensor_value"] = floatToString(ORP);
     orp_sensor["sensor_unit"] = "mV";
 
     // Add Temperature sensor
     JsonObject temp_sensor = sensors.createNestedObject();
     temp_sensor["sensor_id"] = "TEMP_0001";
     temp_sensor["sensor_name"] = "Nhiệt Độ";
-    temp_sensor["sensor_value"] = TEMP;
+    temp_sensor["sensor_value"] = floatToString(TEMP);
     temp_sensor["sensor_unit"] = "°C";
 }
 
