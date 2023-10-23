@@ -1,12 +1,14 @@
 #include <M5Atom.h>
+#include "sensor_data.h"
 #include "wifi_setup.h"
 #include "MQTT_helper.h"
-#include "sensor_data.h"
+
 
 // Class Wifi_esp32
-Wifi_esp32 wifi;
+Wifi_esp32 wifi("abcd","12345678");
 // Class MyMQTT
 MyMQTT myMQTT("mqttserver.tk", "innovation", "Innovation_RgPQAZoA5N");
+// MyMQTT myMQTT("io.adafruit.com", "AI_ProjectHGL", "aio_yJZx381mTVk7Qfnbsd17MxJuv8zz");
 // Class data json already created
 SENSOR_DATA data;
 
@@ -16,21 +18,9 @@ void setup() {
   Serial2.begin(9600, SERIAL_8N1, 22, 19);
   wifi.setupWifi(); // Setup wifi
   myMQTT.connectToMQTT(); // Connect to MQTT server
-  myMQTT.subscribe("/innovation/watermonitoring/"); // Subscribe to the feed
+  // myMQTT.subscribe("/innovation/watermonitoring/"); // Subscribe to the feed
+  // myMQTT.subscribe("AI_ProjectHGL/feeds/test"); // Subscribe to the feed
 }
-
-
-uint8_t data_ec[] = {0x04, 0x03, 0x00, 0x00, 0x00, 0x02, 0xC4, 0x5E};
-uint8_t data_ph[] = {0x04, 0x03, 0x00, 0x08, 0x00, 0x02, 0x45, 0x9C};
-uint8_t data_orp[] = {0x05, 0x03, 0x00, 0x01, 0x00, 0x02, 0x94, 0x4F};
-uint8_t data_temp[] = {0x05, 0x03, 0x00, 0x03, 0x00, 0x02, 0x35, 0x8F};
-uint8_t data_air[] = {0x01, 0x03, 0x00, 0x00, 0x00, 0x02, 0xC4, 0x0B};
-
-float ec;
-float ph;
-float orp;
-float temp;
-
 
 void loop() {
   // put your main code here, to run repeatedly:
@@ -44,49 +34,122 @@ void loop() {
     Serial.println();
   }
   if (input == 'z') {
-    Serial.println("Writing to EC...");
-    Serial2.write(data_ec, sizeof(data_ec));
-    M5.update();
-  }
-  if (input == 'x') {
-    Serial.println("Writing to ORP...");
-    Serial2.write(data_orp, sizeof(data_orp));
-    M5.update();
-  }
-  if (input == 'c') {
-    Serial.println("Writing to PH...");
-    Serial2.write(data_ph, sizeof(data_ph));
-    M5.update();
-  }
-  if (input == 'v') {
-    Serial.println("Writing to TEMP...");
-    Serial2.write(data_temp, sizeof(data_temp));
-    M5.update();
-
-  }
-  if (input == 'b'){
-    Serial.println("Writing to air...");
-    Serial2.write(data_air, sizeof(data_air));
-
-  }
-  if (Serial2.available()) {    // If the serial port receives a message. 
-      uint8_t receivedData[10];
+    Serial.println("Writing to soil PH with data...");
+    SENSOR_RS485 data485;
+    uint8_t* data = data485.getDataSOIL_PH();
+    Serial2.write(data, 8);
+    delay(1000);
+    if (Serial2.available()) {    // If the serial port receives a message. 
+      uint8_t receivedData[7];
       Serial2.readBytes(receivedData, sizeof(receivedData));  // Read the message.
-      for (int i = 0; i < 8; i++) {
+      for (int i = 0; i <7 ; i++) {
         Serial.print("0x");
         Serial.print(receivedData[i], HEX);
         Serial.print(", ");
       }
       Serial.println();
-      // float humidity = (int)receivedData[3]*256 + (int)receivedData[4];
-      // float temperature = (int)receivedData[5]*256 + (int)receivedData[6];
-      // humidity/=10.0;
-      // temperature/=10.0;
-      // Serial.print("Humidity: "); 
-      // Serial.println(humidity);
-      // Serial.print("Temperature: ");
-      // Serial.println(temperature);
-      M5.update();
+      float PH = (int)receivedData[3]*256 + (int)receivedData[4];
+      PH/=100.0;
+      Serial.print("PH = ");
+      Serial.println(PH);
+    }
+  }
+  if (input == 'x') {
+    Serial.println("Writing to soil temperature and humidity with data...");
+    SENSOR_RS485 data485;
+    uint8_t* data = data485.getDataSOIL_TEMPERATURE_HUMIDITY();
+    Serial2.write(data, 8);
+    delay(1000);
+    if (Serial2.available()) {    // If the serial port receives a message. 
+      uint8_t receivedData[9];
+      Serial2.readBytes(receivedData, sizeof(receivedData));  // Read the message.
+      for (int i = 0; i <9 ; i++) {
+        Serial.print("0x");
+        Serial.print(receivedData[i], HEX);
+        Serial.print(", ");
+      }
+      Serial.println();
+      float humidity = (int)receivedData[3]*256 + (int)receivedData[4];
+      float temperature = (int)receivedData[5]*256 + (int)receivedData[6];
+      humidity/=10.0;
+      temperature/=10.0;
+      Serial.print("Soil humidity: "); 
+      Serial.println(humidity);
+      Serial.print("Soil temperature: ");
+      Serial.println(temperature);
+    }
+  }
+  if (input == 'c') {
+    Serial.println("Writing to soil NPK with data...");
+    SENSOR_RS485 data485;
+    uint8_t* data = data485.getDataSOIL_NPK();
+    Serial2.write(data, 8);
+    delay(1000);
+    if (Serial2.available()) {    // If the serial port receives a message. 
+      uint8_t receivedData[11];
+      Serial2.readBytes(receivedData, sizeof(receivedData));  // Read the message.
+      for (int i = 0; i <11 ; i++) {
+        Serial.print("0x");
+        Serial.print(receivedData[i], HEX);
+        Serial.print(", ");
+      }
+      Serial.println();
+      float N = (int)receivedData[3]*256 + (int)receivedData[4];
+      float P = (int)receivedData[5]*256 + (int)receivedData[6];
+      float K = (int)receivedData[7]*256 + (int)receivedData[8];
+      Serial.print("Soil Nito: "); 
+      Serial.println(N);
+      Serial.print("Soil Photpho: ");
+      Serial.println(P);
+      Serial.print("Soil Kali: ");
+      Serial.println(K);
+    }
+  }
+  if (input == 'v') {
+    Serial.println("Writing to soil conductivity with data...");
+    SENSOR_RS485 data485;
+    uint8_t* data = data485.getDataSOIL_CONDUCTIVITY();
+    Serial2.write(data, 8);
+    delay(1000);
+    if (Serial2.available()) {    // If the serial port receives a message. 
+      uint8_t receivedData[7];
+      Serial2.readBytes(receivedData, sizeof(receivedData));  // Read the message.
+      for (int i = 0; i <7 ; i++) {
+        Serial.print("0x");
+        Serial.print(receivedData[i], HEX);
+        Serial.print(", ");
+      }
+      Serial.println();
+      float ec = (int)receivedData[3]*256 + (int)receivedData[4];
+      Serial.print("Soil EC: "); 
+      Serial.println(ec);
+    }
+  }
+  if (input == 'b'){
+    Serial.println("Writing to air with data...");
+    SENSOR_RS485 data485;
+    uint8_t* data = data485.getDataAIR_HUMIDITY_TEMPERATURE();
+    Serial2.write(data, 8);
+    delay(1000);
+    if (Serial2.available()) {    // If the serial port receives a message. 
+      uint8_t receivedData[9];
+      Serial2.readBytes(receivedData, sizeof(receivedData));  // Read the message.
+      for (int i = 0; i <9 ; i++) {
+        Serial.print("0x");
+        Serial.print(receivedData[i], HEX);
+        Serial.print(", ");
+      }
+      Serial.println();
+      float humidity = (int)receivedData[3]*256 + (int)receivedData[4];
+      float temperature = (int)receivedData[5]*256 + (int)receivedData[6];
+      humidity/=10.0;
+      temperature/=10.0;
+      Serial.print("Air humidity: "); 
+      Serial.println(humidity);
+      Serial.print("Air temperature: ");
+      Serial.println(temperature);
+    }
   }
   M5.update();
 }
+
