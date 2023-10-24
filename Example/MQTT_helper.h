@@ -23,7 +23,7 @@ public:
     // Truyền vào server, username, password
     MyMQTT(String server, String user, String password) 
     : mqtt_server(server), user(user), password(password), client(espClient) {
-      client.setBufferSize(1024);
+      client.setBufferSize(2048);
     }
     
     void connectToMQTT(); // Connect tới server bằng username đã tạo
