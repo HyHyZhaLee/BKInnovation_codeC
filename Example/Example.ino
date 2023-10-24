@@ -3,8 +3,6 @@
 #include "wifi_setup.h"
 #include "MQTT_helper.h"
 
-String floatToString(float value);
-
 // Class Wifi_esp32
 Wifi_esp32 wifi;
 // Class MyMQTT
@@ -29,151 +27,7 @@ float air_temperature, air_humidity, air_illuminance = 0, air_CO2 = 0;
 float soil_PH = 1, soil_temperature = 2, soil_humidity = 3, soil_N = 4, soil_P = 5, soil_K= 6, soil_EC =7;
 
 
-String createWaterStationJSON(float EC, float PH, float ORP, float TEMP) {
-  DynamicJsonDocument doc(1024);
 
-  doc["station_id"] = "water_0001";
-  doc["station_name"] = "WATER 0001";
-  doc["gps_longitude"] = 106.99;
-  doc["gps_latitude"] = 10.2;
-
-  JsonArray sensors = doc.createNestedArray("sensors");
-
-  JsonObject ec_sensor = sensors.createNestedObject();
-  ec_sensor["sensor_id"] = "ec_0001";
-  ec_sensor["sensor_name"] = "EC 0001";
-  ec_sensor["sensor_value"] = floatToString(EC);
-  ec_sensor["sensor_unit"] = "ms/cm";
-
-  JsonObject ph_sensor = sensors.createNestedObject();
-  ph_sensor["sensor_id"] = "ph_0001";
-  ph_sensor["sensor_name"] = "PH 0001";
-  ph_sensor["sensor_value"] = floatToString(PH);
-  ph_sensor["sensor_unit"] = "pH";
-
-  JsonObject orp_sensor = sensors.createNestedObject();
-  orp_sensor["sensor_id"] = "ORP_0001";
-  orp_sensor["sensor_name"] = "ORP 0001";
-  orp_sensor["sensor_value"] = floatToString(ORP);
-  orp_sensor["sensor_unit"] = "mV";
-
-  JsonObject temp_sensor = sensors.createNestedObject();
-  temp_sensor["sensor_id"] = "TEMP_0001";
-  temp_sensor["sensor_name"] = "Nhiệt Độ";
-  temp_sensor["sensor_value"] = floatToString(TEMP);
-  temp_sensor["sensor_unit"] = "°C";
-
-  String jsonString;
-  serializeJson(doc, jsonString);
-  Serial.println("Data to pub:");
-  serializeJsonPretty(doc, Serial);
-  doc.clear();
-  Serial.println();
-  return jsonString;
-}
-
-String createAirStationJSON(float temp, float humi, float illuminance, float co2) {
-  DynamicJsonDocument doc(1024);
-
-  doc["station_id"] = "air_0001";
-  doc["station_name"] = "AIR 0001";
-  doc["gps_longitude"] = 106.89;
-  doc["gps_latitude"] = 10.5;
-
-  JsonArray sensors = doc.createNestedArray("sensors");
-
-  JsonObject temp_sensor = sensors.createNestedObject();
-  temp_sensor["sensor_id"] = "temp_0001";
-  temp_sensor["sensor_name"] = "Nhiệt Độ";
-  temp_sensor["sensor_value"] = floatToString(temp);
-  temp_sensor["sensor_unit"] = "°C";
-
-  JsonObject humi_sensor = sensors.createNestedObject();
-  humi_sensor["sensor_id"] = "humi_0001";
-  humi_sensor["sensor_name"] = "Độ Ẩm";
-  humi_sensor["sensor_value"] = floatToString(humi);
-  humi_sensor["sensor_unit"] = "%";
-
-  JsonObject illuminance_sensor = sensors.createNestedObject();
-  illuminance_sensor["sensor_id"] = "illuminance_0001";
-  illuminance_sensor["sensor_name"] = "Độ Sáng";
-  illuminance_sensor["sensor_value"] = floatToString(illuminance);
-  illuminance_sensor["sensor_unit"] = "lux";
-
-  JsonObject co2_sensor = sensors.createNestedObject();
-  co2_sensor["sensor_id"] = "CO2_0001";
-  co2_sensor["sensor_name"] = "CO2";
-  co2_sensor["sensor_value"] = floatToString(co2);
-  co2_sensor["sensor_unit"] = "ppm";
-
-  String jsonString;
-  serializeJson(doc, jsonString);
-  Serial.println("Data to pub:");
-  serializeJsonPretty(doc, Serial);
-  doc.clear();
-  Serial.println();
-  return jsonString;
-}
-String createSoilStationJSON(float temp, float humi, float ph, float ec, float nito, float photpho, float kali) {
-  DynamicJsonDocument doc(1024);
-
-  doc["station_id"] = "SOIL_0001";
-  doc["station_name"] = "SOIL 0001";
-  doc["gps_longitude"] = 106.89;
-  doc["gps_latitude"] = 10.5;
-
-  JsonArray sensors = doc.createNestedArray("sensors");
-
-  JsonObject temp_sensor = sensors.createNestedObject();
-  temp_sensor["sensor_id"] = "temp_0001";
-  temp_sensor["sensor_name"] = "Nhiệt Độ";
-  temp_sensor["sensor_value"] = floatToString(temp);
-  temp_sensor["sensor_unit"] = "°C";
-
-  JsonObject humi_sensor = sensors.createNestedObject();
-  humi_sensor["sensor_id"] = "humi_0001";
-  humi_sensor["sensor_name"] = "Độ Ẩm";
-  humi_sensor["sensor_value"] = floatToString(humi);
-  humi_sensor["sensor_unit"] = "%";
-
-  JsonObject ph_sensor = sensors.createNestedObject();
-  ph_sensor["sensor_id"] = "ph_0001";
-  ph_sensor["sensor_name"] = "PH";
-  ph_sensor["sensor_value"] = floatToString(ph);
-  ph_sensor["sensor_unit"] = "";
-
-  JsonObject ec_sensor = sensors.createNestedObject();
-  ec_sensor["sensor_id"] = "EC_0001";
-  ec_sensor["sensor_name"] = "EC";
-  ec_sensor["sensor_value"] = floatToString(ec);
-  ec_sensor["sensor_unit"] = "ms/cm";
-
-  JsonObject nito_sensor = sensors.createNestedObject();
-  nito_sensor["sensor_id"] = "Nito_0001";
-  nito_sensor["sensor_name"] = "N";
-  nito_sensor["sensor_value"] = floatToString(nito);
-  nito_sensor["sensor_unit"] = "ms/cm";
-
-  JsonObject photpho_sensor = sensors.createNestedObject();
-  photpho_sensor["sensor_id"] = "Photpho_0001";
-  photpho_sensor["sensor_name"] = "P";
-  photpho_sensor["sensor_value"] = floatToString(photpho);
-  photpho_sensor["sensor_unit"] = "ms/cm";
-
-  JsonObject kali_sensor = sensors.createNestedObject();
-  kali_sensor["sensor_id"] = "Kali_0001";
-  kali_sensor["sensor_name"] = "K";
-  kali_sensor["sensor_value"] = floatToString(kali);
-  kali_sensor["sensor_unit"] = "ms/cm";
-
-  String jsonString;
-  serializeJson(doc, jsonString);
-  Serial.println("Data to pub:");
-  serializeJsonPretty(doc, Serial);
-  doc.clear();
-  Serial.println();
-  return jsonString;
-}
 
 
 void loop() {
@@ -203,7 +57,7 @@ void loop() {
     Serial.print("Air temperature: ");
     Serial.println(air_temperature);
     // data.setValueAIR_STATION(air_temperature, air_humidity, air_illuminance, air_CO2);
-    String temp = createAirStationJSON(air_temperature, air_humidity, air_illuminance, air_CO2);
+    String temp = data.createAirStationJSON(air_temperature, air_humidity, air_illuminance, air_CO2);
     // myMQTT.publish("/innovation/airmonitoring/", data.getData().c_str()); // Publish to feed]
     myMQTT.publish("/innovation/airmonitoring/", temp); // Publish to feed
     // data.print();
@@ -296,7 +150,7 @@ void loop() {
     Serial.println(soil_EC);
   }
   // data.setValueSOIL_STATION(soil_temperature,soil_humidity,soil_PH,soil_EC,soil_N,soil_P,soil_K);
-  String data_to_pub = createSoilStationJSON(soil_temperature,soil_humidity,soil_PH,soil_EC,soil_N,soil_P,soil_K);
+  String data_to_pub = data.createSoilStationJSON(soil_temperature,soil_humidity,soil_PH,soil_EC,soil_N,soil_P,soil_K);
   myMQTT.publish("/innovation/soilmonitoring/", data_to_pub); // Publish to feed
   Serial.println();
   delay(5000);
