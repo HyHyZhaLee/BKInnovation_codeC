@@ -33,6 +33,7 @@ float soil_PH = 1, soil_temperature = 2, soil_humidity = 3, soil_N = 4, soil_P =
 void loop() {
   // put your main code here, to run repeatedly:
   myMQTT.checkConnect();
+  String data_to_pub;
   SENSOR_RS485 data485;
 
   Serial.println("Writing to air with data...");
@@ -57,9 +58,9 @@ void loop() {
     Serial.print("Air temperature: ");
     Serial.println(air_temperature);
     // data.setValueAIR_STATION(air_temperature, air_humidity, air_illuminance, air_CO2);
-    String temp = data.createAirStationJSON(air_temperature, air_humidity, air_illuminance, air_CO2);
+    data_to_pub = data.createAirStationJSON(air_temperature, air_humidity, air_illuminance, air_CO2);
     // myMQTT.publish("/innovation/airmonitoring/", data.getData().c_str()); // Publish to feed]
-    myMQTT.publish("/innovation/airmonitoring/", temp); // Publish to feed
+    myMQTT.publish("/innovation/airmonitoring/", data_to_pub); // Publish to feed
     // data.print();
     Serial.println();
   }
@@ -155,7 +156,7 @@ void loop() {
   }
   myMQTT.checkConnect();
   // data.setValueSOIL_STATION(soil_temperature,soil_humidity,soil_PH,soil_EC,soil_N,soil_P,soil_K);
-  String data_to_pub = data.createSoilStationJSON(soil_temperature,soil_humidity,soil_PH,soil_EC,soil_N,soil_P,soil_K);
+  data_to_pub = data.createSoilStationJSON(soil_temperature,soil_humidity,soil_PH,soil_EC,soil_N,soil_P,soil_K);
   myMQTT.publish("/innovation/soilmonitoring/", data_to_pub); // Publish to feed
   Serial.println();
   delay(5000);
